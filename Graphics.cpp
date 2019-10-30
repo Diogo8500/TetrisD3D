@@ -152,3 +152,40 @@ const char* Graphics::DeviceRemovedException::GetType() const noexcept
 {
 	return "My Graphics Exception [Device Removed] (DXGI_ERROR_DEVICE_REMOVED)";
 }
+
+Graphics::InfoException::InfoException(int line, const char* file, std::vector<std::string> infoMsgs) noexcept
+	:
+	Exception(line,file)
+{
+	//Join all info messages with newlines into single string
+	for (const auto& m : infoMsgs)
+	{
+		info += m;
+		info.push_back('\n');
+	}
+	//Remove final newline if exists
+	if (!info.empty())
+	{
+		info.pop_back();
+	}
+}
+
+const char* Graphics::InfoException::what() const noexcept
+{
+	std::ostringstream oss;
+	oss << GetType() << std::endl
+		<< "[Error Info]\n" << GetErrorInfo() << std::endl << std::endl;
+	oss	<< GetOriginString();
+	whatBuffer = oss.str();
+	return whatBuffer.c_str();
+}
+
+const char* Graphics::InfoException::GetType() const noexcept
+{
+	return "My Graphics Info Exception";
+}
+
+std::string Graphics::InfoException::GetErrorInfo() const noexcept
+{
+	return info;
+}
